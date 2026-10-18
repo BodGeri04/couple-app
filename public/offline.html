@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Nincs kapcsolat</title>
+    <style>
+        :root { --bg: #fff7f5; --ink: #4a3440; --soft: #947886; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #1a141e; --ink: #fceef4; --soft: #c0a8b6; } }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; padding: 24px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+            text-align: center; background: var(--bg); color: var(--ink);
+            font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        .icon { font-size: 64px; }
+        h1 { margin: 0; font-size: 24px; }
+        p { margin: 0; max-width: 280px; color: var(--soft); }
+        button {
+            margin-top: 12px; border: 0; border-radius: 16px; padding: 14px 24px;
+            font-size: 16px; font-weight: 800; color: #fff;
+            background: linear-gradient(135deg, #ec588a, #ffab91);
+        }
+    </style>
+</head>
+<body>
+    <div class="icon">📡</div>
+    <h1>Nincs internetkapcsolat</h1>
+    <p>Úgy tűnik, most nem érem el a szervert. Ellenőrizd a kapcsolatot, aztán próbáld újra.</p>
+    <button onclick="location.reload()">Újrapróbálom</button>
+</body>
+</html>
