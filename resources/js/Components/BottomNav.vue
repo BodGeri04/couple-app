@@ -1,14 +1,22 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { House, CalendarHeart, Camera, ShoppingBasket, Gift } from 'lucide-vue-next';
 
+const page = usePage();
+
 const items = [
-    { label: 'Kezdőlap', icon: House, href: route('dashboard'), match: 'dashboard' },
-    { label: 'Naptár', icon: CalendarHeart, href: route('calendar.index'), match: 'calendar.*' },
-    { label: 'Pillanat', icon: Camera, href: route('snaps.index'), match: 'snaps.*', center: true },
-    { label: 'Bevásárlás', icon: ShoppingBasket, href: route('shopping.index'), match: 'shopping.*' },
-    { label: 'Kívánságok', icon: Gift, href: route('wishes.index'), match: 'wishes.*' },
+    { label: 'Kezdőlap', icon: House, href: route('dashboard'), path: '/dashboard' },
+    { label: 'Naptár', icon: CalendarHeart, href: route('calendar.index'), path: '/calendar' },
+    { label: 'Pillanat', icon: Camera, href: route('snaps.index'), path: '/snaps', center: true },
+    { label: 'Bevásárlás', icon: ShoppingBasket, href: route('shopping.index'), path: '/shopping' },
+    { label: 'Kívánságok', icon: Gift, href: route('wishes.index'), path: '/wishes' },
 ];
+
+// usePage().url is reactive, so the highlight follows every navigation.
+const isActive = (item) => {
+    const current = page.url.split('?')[0];
+    return current === item.path || current.startsWith(`${item.path}/`);
+};
 </script>
 
 <template>
@@ -17,15 +25,15 @@ const items = [
         aria-label="Fő navigáció"
     >
         <ul class="mx-auto flex max-w-xl items-end justify-between px-2">
-            <li v-for="item in items" :key="item.match" class="flex flex-1 justify-center">
+            <li v-for="item in items" :key="item.path" class="flex flex-1 justify-center">
                 <Link
                     :href="item.href"
                     class="nav-item"
                     :class="{
-                        'nav-item-active': route().current(item.match),
+                        'nav-item-active': isActive(item),
                         'nav-item-center': item.center,
                     }"
-                    :aria-current="route().current(item.match) ? 'page' : undefined"
+                    :aria-current="isActive(item) ? 'page' : undefined"
                 >
                     <span v-if="item.center" class="nav-center-bubble">
                         <component :is="item.icon" :size="26" :stroke-width="2.2" />

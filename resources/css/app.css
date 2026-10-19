@@ -34,18 +34,24 @@
     html {
         color-scheme: light;
         background-color: rgb(var(--c-bg));
-        overscroll-behavior-y: contain; /* we provide our own pull-to-refresh */
+        overscroll-behavior-y: contain;
+        /* we provide our own pull-to-refresh */
         -webkit-tap-highlight-color: transparent;
     }
+
     html.dark {
         color-scheme: dark;
     }
+
     body {
         @apply bg-canvas text-ink;
         overscroll-behavior-y: contain;
     }
+
     /* 16px+ stops iOS Safari from zooming into inputs */
-    input, select, textarea {
+    input,
+    select,
+    textarea {
         font-size: 16px;
     }
 }
@@ -75,6 +81,7 @@
     .app-header {
         padding-top: env(safe-area-inset-top);
     }
+
     .app-main {
         padding-top: calc(var(--header-h) + 1rem);
         padding-bottom: calc(var(--nav-h) + 1.5rem);
@@ -84,27 +91,35 @@
     .bottom-nav {
         padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
     }
+
     .nav-item {
         @apply relative flex w-full select-none flex-col items-center gap-0.5 pb-1 pt-2 text-ink-soft transition active:scale-90;
     }
+
     .nav-icon {
         @apply grid h-8 w-12 place-items-center rounded-full transition;
     }
+
     .nav-label {
         @apply text-[11px] font-bold leading-none;
     }
+
     .nav-item-active {
         @apply text-primary;
     }
+
     .nav-item-active .nav-icon {
         @apply bg-primary/15;
     }
+
     .nav-center-bubble {
         @apply -mt-7 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-primary to-peach text-white shadow-pop ring-4 ring-surface transition;
     }
+
     .nav-item-center {
         @apply pb-2;
     }
+
     .nav-item-center.nav-item-active .nav-center-bubble {
         @apply scale-110;
     }
@@ -114,6 +129,7 @@
     .animate-float {
         animation: float 4s ease-in-out infinite;
     }
+
     .animate-heartbeat {
         animation: heartbeat 0.9s ease-in-out infinite;
     }
@@ -121,23 +137,53 @@
 
 /* ---------- Animations ---------- */
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
 }
+
 @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.3); }
-    45% { transform: scale(1); }
-    65% { transform: scale(1.2); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.3);
+    }
+
+    45% {
+        transform: scale(1);
+    }
+
+    65% {
+        transform: scale(1.2);
+    }
 }
+
 @keyframes burst-fly {
-    0% { transform: translate(-50%, -50%) scale(0.3) rotate(0deg); opacity: 0; }
-    15% { opacity: 1; }
+    0% {
+        transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
     100% {
         transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--rot));
         opacity: 0;
     }
 }
+
 .burst-particle {
     position: fixed;
     animation: burst-fly 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
@@ -149,10 +195,12 @@
 .page-leave-active {
     transition: opacity 0.18s ease, transform 0.18s ease;
 }
+
 .page-enter-from {
     opacity: 0;
     transform: translateY(10px);
 }
+
 .page-leave-to {
     opacity: 0;
     transform: translateY(-4px);
@@ -163,24 +211,82 @@
 .icon-swap-leave-active {
     transition: transform 0.18s ease, opacity 0.18s ease;
 }
+
 .icon-swap-enter-from {
     opacity: 0;
     transform: rotate(-90deg) scale(0.6);
 }
+
 .icon-swap-leave-to {
     opacity: 0;
     transform: rotate(90deg) scale(0.6);
 }
 
+/* Bottom sheet */
+.sheet-enter-active,
+.sheet-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.sheet-enter-active .sheet-panel,
+.sheet-leave-active .sheet-panel {
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sheet-enter-from,
+.sheet-leave-to {
+    opacity: 0;
+}
+
+.sheet-enter-from .sheet-panel,
+.sheet-leave-to .sheet-panel {
+    transform: translateY(100%);
+}
+
+/* Animated lists */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.25s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(16px);
+}
+
+.list-leave-active {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sheet-enter-active,
+    .sheet-leave-active,
+    .sheet-enter-active .sheet-panel,
+    .sheet-leave-active .sheet-panel,
+    .list-move,
+    .list-enter-active,
+    .list-leave-active {
+        transition: none !important;
+    }
+}
+
 /* Respect "reduce motion" system setting */
 @media (prefers-reduced-motion: reduce) {
+
     .animate-float,
     .animate-heartbeat {
         animation: none !important;
     }
+
     .burst-particle {
         display: none;
     }
+
     .page-enter-active,
     .page-leave-active,
     .icon-swap-enter-active,

@@ -3,10 +3,17 @@ import { computed } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { CalendarHeart, Camera, ShoppingBasket, Gift, Heart } from 'lucide-vue-next';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useBurst } from '@/Composables/useBurst'; 
+import CountdownCard from '@/Components/CountdownCard.vue';
 import InstallCard from '@/Components/InstallCard.vue';
+import { useBurst } from '@/Composables/useBurst';
 
 defineOptions({ layout: AuthenticatedLayout });
+
+const props = defineProps({
+    nextEvent: Object,
+    shoppingOpen: { type: Number, default: 0 },
+    wishesPending: { type: Number, default: 0 },
+});
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -16,12 +23,22 @@ const { burst } = useBurst();
 const hour = new Date().getHours();
 const greeting = hour < 10 ? 'Jó reggelt' : hour < 18 ? 'Szia' : 'Jó estét';
 
-const tiles = [
+const tiles = computed(() => [
     { label: 'Naptár', hint: 'Különleges napok', icon: CalendarHeart, href: route('calendar.index') },
     { label: 'Pillanat', hint: 'Képküldés', icon: Camera, href: route('snaps.index') },
-    { label: 'Bevásárlás', hint: 'Közös lista', icon: ShoppingBasket, href: route('shopping.index') },
-    { label: 'Kívánságok', hint: 'Ötletek ajándékhoz', icon: Gift, href: route('wishes.index') },
-];
+    {
+        label: 'Bevásárlás',
+        hint: props.shoppingOpen ? `${props.shoppingOpen} tétel vár` : 'Közös lista',
+        icon: ShoppingBasket,
+        href: route('shopping.index'),
+    },
+    {
+        label: 'Kívánságok',
+        hint: props.wishesPending ? `${props.wishesPending} vár válaszra` : 'Ötletek ajándékhoz',
+        icon: Gift,
+        href: route('wishes.index'),
+    },
+]);
 </script>
 
 <template>
@@ -36,16 +53,21 @@ const tiles = [
                 <template v-else>Ez a ti kis titkos világotok.</template>
             </p>
         </section>
-            <InstallCard />
-        <section class="card flex items-center gap-4 p-5">
+
+        <InstallCard />
+
+        <Link v-if="nextEvent" :href="route('calendar.index')" class="block transition active:scale-[.98]">
+            <CountdownCard :event="nextEvent" compact />
+        </Link>
+        <Link v-else :href="route('calendar.index')" class="card flex items-center gap-4 p-5 transition active:scale-[.98]">
             <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-primary">
                 <CalendarHeart :size="24" />
             </div>
             <div>
-                <h2 class="font-extrabold">Következő különleges nap</h2>
-                <p class="text-sm text-ink-soft">A visszaszámláló hamarosan megjelenik itt.</p>
+                <h2 class="font-extrabold">Még nincs közelgő esemény</h2>
+                <p class="text-sm text-ink-soft">Koppints ide, és add hozzá az első különleges napotokat.</p>
             </div>
-        </section>
+        </Link>
 
         <section class="grid grid-cols-2 gap-3">
             <Link v-for="tile in tiles" :key="tile.label" :href="tile.href" class="card p-4 transition active:scale-95">

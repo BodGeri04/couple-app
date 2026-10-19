@@ -8,6 +8,11 @@ export function usePullToRefresh({ threshold = 72, max = 120 } = {}) {
     let startY = null;
 
     const onStart = (e) => {
+        // ignore touches inside modals / bottom sheets
+        if (e.target instanceof Element && e.target.closest('[role="dialog"]')) {
+            startY = null;
+            return;
+        }
         if (refreshing.value || window.scrollY > 0 || e.touches.length !== 1) {
             startY = null;
             return;
