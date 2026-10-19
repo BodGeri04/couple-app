@@ -3,10 +3,11 @@
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushController;
 use App\Http\Controllers\ShoppingController;
+use App\Http\Controllers\SnapController;
 use App\Http\Controllers\WishController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::redirect('/', '/dashboard');
 
@@ -37,15 +38,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/wishes/{wish}/reaction', [WishController::class, 'react'])->name('wishes.react');
     Route::delete('/wishes/{wish}', [WishController::class, 'destroy'])->name('wishes.destroy');
 
-    // Snaps: still a placeholder, built in a later step
-    Route::get('/snaps', fn() => Inertia::render('Placeholder', [
-        'title' => 'Pillanat',
-        'emoji' => '📸',
-        'text' => 'Küldj egy pillanatképet a párodnak, hamarosan.',
-    ]))->name('snaps.index');
+    // Snaps (encrypted photos)
+    Route::get('/snaps', [SnapController::class, 'index'])->name('snaps.index');
+    Route::post('/snaps', [SnapController::class, 'store'])->name('snaps.store');
+    Route::get('/snaps/{snap}/image', [SnapController::class, 'image'])->name('snaps.image');
+    Route::post('/snaps/{snap}/seen', [SnapController::class, 'seen'])->name('snaps.seen');
+    Route::delete('/snaps/{snap}', [SnapController::class, 'destroy'])->name('snaps.destroy');
+
+    // Web Push
+    Route::post('/push/subscribe', [PushController::class, 'subscribe'])->name('push.subscribe');
+    Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
+    Route::post('/push/test', [PushController::class, 'test'])->name('push.test');
 });
 
-// TEMPORARY: role check test, removed when we build the admin panel
-Route::middleware(['auth', 'role:admin'])->get('/admin/ping', fn() => response('admin ok'));
-
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

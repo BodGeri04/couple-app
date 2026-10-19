@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CountdownCard from '@/Components/CountdownCard.vue';
 import InstallCard from '@/Components/InstallCard.vue';
 import { useBurst } from '@/Composables/useBurst';
+import NotificationCard from '@/Components/NotificationCard.vue';
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -18,6 +19,7 @@ const props = defineProps({
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const partner = computed(() => page.props.auth.partner);
+const unseen = computed(() => page.props.unseenSnaps ?? 0);
 const { burst } = useBurst();
 
 const hour = new Date().getHours();
@@ -25,7 +27,12 @@ const greeting = hour < 10 ? 'Jó reggelt' : hour < 18 ? 'Szia' : 'Jó estét';
 
 const tiles = computed(() => [
     { label: 'Naptár', hint: 'Különleges napok', icon: CalendarHeart, href: route('calendar.index') },
-    { label: 'Pillanat', hint: 'Képküldés', icon: Camera, href: route('snaps.index') },
+    {
+        label: 'Pillanat',
+        hint: unseen.value ? `${unseen.value} új vár rád` : 'Képküldés',
+        icon: Camera,
+        href: route('snaps.index'),
+    },
     {
         label: 'Bevásárlás',
         hint: props.shoppingOpen ? `${props.shoppingOpen} tétel vár` : 'Közös lista',
@@ -55,6 +62,7 @@ const tiles = computed(() => [
         </section>
 
         <InstallCard />
+        <NotificationCard />
 
         <Link v-if="nextEvent" :href="route('calendar.index')" class="block transition active:scale-[.98]">
             <CountdownCard :event="nextEvent" compact />

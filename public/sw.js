@@ -1,5 +1,5 @@
 // Bump VERSION whenever you change this file, so phones pick up the new one.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const STATIC_CACHE = `static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -47,5 +47,47 @@ self.addEventListener('fetch', (event) => {
             ),
         );
     }
-    // Everything else (Inertia data requests, snap images, API calls) is never touched.
+    // Everything else (page data, snap images, API calls) is never touched.
+});
+
+// ---------- Web Push ----------
+self.addEventListener('push', (event) => {
+    let data = {};
+
+    try {
+        data = event.data ? event.data.json() : {};
+    } catch (e) {
+        data = { body: event.data ? event.data.text() : '' };
+    }
+
+    // iPhones require every push to show a notification, so we always do.
+    event.waitUntil(
+        self.registration.showNotification(data.title || 'Aplikáció', {
+            body: data.body || '',
+            icon: '/icons/icon-192.png',
+            tag: data.tag || undefined,
+            data: { url: data.url || '/dashboard' },
+        }),
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const target = new URL(event.notification.data?.url || '/dashboard', self.location.origin).href;
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+            const existing = windows.find((client) => client.url.startsWith(self.location.origin));
+
+            if (existing && 'navigate' in existing) {
+                return existing
+                    .focus()
+                    .then(() => existing.navigate(target))
+                    .catch(() => self.clients.openWindow(target));
+            }
+
+            return self.clients.openWindow(target);
+        }),
+    );
 });

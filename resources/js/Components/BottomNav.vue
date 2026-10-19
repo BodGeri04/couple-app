@@ -35,8 +35,14 @@ const isActive = (item) => {
                     }"
                     :aria-current="isActive(item) ? 'page' : undefined"
                 >
-                    <span v-if="item.center" class="nav-center-bubble">
+                    <span v-if="item.center" class="nav-center-bubble relative">
                         <component :is="item.icon" :size="26" :stroke-width="2.2" />
+                        <span
+                            v-if="page.props.unseenSnaps > 0"
+                            class="absolute -right-0.5 -top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-white px-1 text-[11px] font-extrabold leading-none text-primary shadow"
+                        >
+                            {{ page.props.unseenSnaps }}
+                        </span>
                     </span>
                     <template v-else>
                         <span class="nav-icon"><component :is="item.icon" :size="22" /></span>
