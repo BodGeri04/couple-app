@@ -8,7 +8,7 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { initPwaInstall } from './Composables/usePwaInstall';
 
-const appName = import.meta.env.VITE_APP_NAME || 'DatingAPP';
+const appName = import.meta.env.VITE_APP_NAME || 'dateAPP';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

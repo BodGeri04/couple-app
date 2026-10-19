@@ -32,7 +32,7 @@ const heartStyle = computed(() => ({
                 <Link :href="route('dashboard')" class="flex min-w-0 items-center gap-2">
                     <Heart :size="22" class="shrink-0 text-primary" fill="currentColor" />
                     <slot name="header">
-                        <span class="truncate text-lg font-extrabold tracking-tight">Aplikáció</span>
+                        <span class="truncate text-lg font-extrabold tracking-tight">dateAPP</span>
                     </slot>
                 </Link>
 
