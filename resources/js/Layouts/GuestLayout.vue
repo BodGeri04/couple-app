@@ -1,6 +1,12 @@
 <script setup>
+import { usePage } from '@inertiajs/vue3';
 import { Heart } from 'lucide-vue-next';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
+import { useSiteTheme } from '@/Composables/useSiteTheme';
+
+const page = usePage();
+
+useSiteTheme();
 </script>
 
 <template>
@@ -18,7 +24,7 @@ import ThemeToggle from '@/Components/ThemeToggle.vue';
                 <div class="grid h-20 w-20 animate-float place-items-center rounded-3xl bg-gradient-to-br from-primary to-peach text-white shadow-pop">
                     <Heart :size="38" fill="currentColor" />
                 </div>
-                <h1 class="text-2xl font-extrabold tracking-tight">dateAPP</h1>
+                <h1 class="text-2xl font-extrabold tracking-tight">{{ page.props.site?.name ?? 'dateAPP' }}</h1>
                 <p class="text-sm text-ink-soft">Csak mi ketten</p>
             </div>
 

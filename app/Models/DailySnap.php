@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,7 +15,14 @@ class DailySnap extends Model
     {
         return [
             'viewed_at' => 'datetime',
+            'hidden_at' => 'datetime',
         ];
+    }
+
+    /** Snaps an admin has not hidden. Everything user-facing must use this. */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->whereNull('hidden_at');
     }
 
     public function sender(): BelongsTo

@@ -20,6 +20,7 @@ class SnapController extends Controller
         $me = $request->user();
 
         $snaps = DailySnap::with('sender:id,name')
+            ->visible()
             ->where(fn ($query) => $query->where('sender_id', $me->id)->orWhere('recipient_id', $me->id))
             ->latest()
             ->limit(60)
@@ -85,6 +86,7 @@ class SnapController extends Controller
     public function image(Request $request, DailySnap $snap, EncryptedFileService $files)
     {
         abort_unless(in_array($request->user()->id, [$snap->sender_id, $snap->recipient_id], true), 403);
+        abort_if($snap->hidden_at, 404); // removed by moderation
 
         if ($request->query('size') === 'thumb' && $snap->thumb_path) {
             return $files->response($snap->thumb_path, 'image/jpeg');

@@ -1,15 +1,19 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Heart } from 'lucide-vue-next';
+import { Heart, ShieldCheck } from 'lucide-vue-next';
 import BottomNav from '@/Components/BottomNav.vue';
 import BurstLayer from '@/Components/BurstLayer.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { usePullToRefresh } from '@/Composables/usePullToRefresh';
+import { useSiteTheme } from '@/Composables/useSiteTheme';
 
 const page = usePage();
 const initial = computed(() => (page.props.auth.user?.name ?? '?').charAt(0).toUpperCase());
 const pageKey = computed(() => page.url.split('?')[0]);
+const isAdminArea = computed(() => pageKey.value === '/admin' || pageKey.value.startsWith('/admin/'));
+
+useSiteTheme();
 
 const { pull, dragging, refreshing } = usePullToRefresh();
 
@@ -28,15 +32,24 @@ const heartStyle = computed(() => ({
     <div class="min-h-screen bg-canvas text-ink">
         <!-- Header -->
         <header class="app-header fixed inset-x-0 top-0 z-30 border-b border-line/60 bg-canvas/85 backdrop-blur-md">
-            <div class="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
+            <div class="mx-auto flex h-14 items-center justify-between px-4" :class="isAdminArea ? 'max-w-4xl' : 'max-w-xl'">
                 <Link :href="route('dashboard')" class="flex min-w-0 items-center gap-2">
                     <Heart :size="22" class="shrink-0 text-primary" fill="currentColor" />
                     <slot name="header">
-                        <span class="truncate text-lg font-extrabold tracking-tight">dateAPP</span>
+                        <span class="truncate text-lg font-extrabold tracking-tight">{{ page.props.site?.name ?? 'dateAPP' }}</span>
                     </slot>
                 </Link>
 
                 <div class="flex items-center gap-2">
+                    <Link
+                        v-if="page.props.auth.user?.is_admin"
+                        :href="route('admin.dashboard')"
+                        class="icon-btn"
+                        :class="{ '!bg-primary !text-white': isAdminArea }"
+                        aria-label="Admin"
+                    >
+                        <ShieldCheck :size="20" />
+                    </Link>
                     <ThemeToggle />
                     <Link :href="route('profile.edit')" class="avatar" aria-label="Profil">
                         {{ initial }}
@@ -61,7 +74,7 @@ const heartStyle = computed(() => ({
         </div>
 
         <!-- Page content -->
-        <main class="app-main relative z-10 mx-auto max-w-xl px-4" :style="mainStyle">
+        <main class="app-main relative z-10 mx-auto px-4" :class="isAdminArea ? 'max-w-4xl' : 'max-w-xl'" :style="mainStyle">
             <Transition name="page" mode="out-in">
                 <div :key="pageKey">
                     <slot />

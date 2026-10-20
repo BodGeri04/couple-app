@@ -15,10 +15,15 @@ class PushService
      * Send a notification to every device the user has subscribed.
      *
      * @param  array{title: string, body?: string, url?: string, tag?: string}  $payload
+     * @param  bool  $force  skip the admin "push enabled" switch (used by the admin test tool)
      * @return int number of devices that accepted the message
      */
-    public function sendToUser(User $user, array $payload): int
+    public function sendToUser(User $user, array $payload, bool $force = false): int
     {
+        if (! $force && ! Settings::bool('feature_push')) {
+            return 0;
+        }
+
         if (! config('push.vapid.private') || ! config('push.vapid.public')) {
             return 0;
         }

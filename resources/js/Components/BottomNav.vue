@@ -1,16 +1,19 @@
 <script setup>
+import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { House, CalendarHeart, Camera, ShoppingBasket, Gift } from 'lucide-vue-next';
+import { iconFor } from '@/lib/icons';
 
 const page = usePage();
 
-const items = [
-    { label: 'Kezdőlap', icon: House, href: route('dashboard'), path: '/dashboard' },
-    { label: 'Naptár', icon: CalendarHeart, href: route('calendar.index'), path: '/calendar' },
-    { label: 'Pillanat', icon: Camera, href: route('snaps.index'), path: '/snaps', center: true },
-    { label: 'Bevásárlás', icon: ShoppingBasket, href: route('shopping.index'), path: '/shopping' },
-    { label: 'Kívánságok', icon: Gift, href: route('wishes.index'), path: '/wishes' },
-];
+// The menu is edited in the admin panel; the server already dropped hidden / switched-off items.
+const items = computed(() =>
+    (page.props.site?.menu ?? []).map((item) => ({
+        ...item,
+        icon: iconFor(item.icon),
+        path: item.href.split(/[?#]/)[0],
+        center: item.featured,
+    })),
+);
 
 // usePage().url is reactive, so the highlight follows every navigation.
 const isActive = (item) => {
@@ -25,7 +28,7 @@ const isActive = (item) => {
         aria-label="Fő navigáció"
     >
         <ul class="mx-auto flex max-w-xl items-end justify-between px-2">
-            <li v-for="item in items" :key="item.path" class="flex flex-1 justify-center">
+            <li v-for="item in items" :key="item.href" class="flex flex-1 justify-center">
                 <Link
                     :href="item.href"
                     class="nav-item"
@@ -38,14 +41,22 @@ const isActive = (item) => {
                     <span v-if="item.center" class="nav-center-bubble relative">
                         <component :is="item.icon" :size="26" :stroke-width="2.2" />
                         <span
-                            v-if="page.props.unseenSnaps > 0"
+                            v-if="item.key === 'snaps' && page.props.unseenSnaps > 0"
                             class="absolute -right-0.5 -top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-white px-1 text-[11px] font-extrabold leading-none text-primary shadow"
                         >
                             {{ page.props.unseenSnaps }}
                         </span>
                     </span>
                     <template v-else>
-                        <span class="nav-icon"><component :is="item.icon" :size="22" /></span>
+                        <span class="nav-icon relative">
+                            <component :is="item.icon" :size="22" />
+                            <span
+                                v-if="item.key === 'snaps' && page.props.unseenSnaps > 0"
+                                class="absolute right-1 top-0 grid h-4 min-w-[1rem] place-items-center rounded-full bg-primary px-1 text-[10px] font-extrabold leading-none text-white"
+                            >
+                                {{ page.props.unseenSnaps }}
+                            </span>
+                        </span>
                         <span class="nav-label">{{ item.label }}</span>
                     </template>
                     <span v-if="item.center" class="sr-only">{{ item.label }}</span>

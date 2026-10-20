@@ -33,6 +33,12 @@ class UserFactory extends Factory
         ];
     }
 
+    /** Role is not mass-assignable on the model, so it is set through the factory state. */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'admin']);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
