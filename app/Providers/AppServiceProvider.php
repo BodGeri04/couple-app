@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -31,6 +32,25 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production') || str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
+
+        // The stored intended URL keeps the scheme the app saw (http behind the proxy), so it is
+        // redirected by path, letting the forced https scheme apply. Other hosts fall back to the default.
+        Redirector::macro('intendedPath', function (string $default, int $status = 302) {
+            $path = $default;
+            $intended = $this->session->pull('url.intended');
+
+            if (is_string($intended) && $intended !== '') {
+                $parts = parse_url($intended);
+
+                if (! isset($parts['host'])) {
+                    $path = $intended;
+                } elseif (strcasecmp($parts['host'], request()->getHost()) === 0) {
+                    $path = ($parts['path'] ?? '/').(isset($parts['query']) ? '?'.$parts['query'] : '');
+                }
+            }
+
+            return $this->to($path, $status);
+        });
 
         Vite::prefetch(concurrency: 3);
 
