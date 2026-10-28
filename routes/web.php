@@ -83,6 +83,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::middleware('password.confirm')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::post('/users/{user}/force-logout', [AdminUserController::class, 'forceLogout'])->name('users.force-logout');
     });
 
     Route::get('/cms', [AdminCmsController::class, 'index'])->name('cms.index');

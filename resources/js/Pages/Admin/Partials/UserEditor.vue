@@ -1,11 +1,24 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
-import { ChevronDown, Pencil, ShieldCheck } from 'lucide-vue-next';
+import { useForm, usePage } from '@inertiajs/vue3';
+import { ChevronDown, LogOut, Pencil, ShieldCheck } from 'lucide-vue-next';
+import BottomSheet from '@/Components/BottomSheet.vue';
 
 const props = defineProps({ user: Object });
 
+const page = usePage();
+const isSelf = computed(() => page.props.auth.user?.id === props.user.id);
+
 const open = ref(false);
+const confirmOpen = ref(false);
+
+const logoutForm = useForm({});
+
+const forceLogout = () =>
+    logoutForm.post(route('admin.users.force-logout', props.user.id), {
+        preserveScroll: true,
+        onSuccess: () => (confirmOpen.value = false),
+    });
 
 const form = useForm({
     name: props.user.name,
@@ -63,6 +76,18 @@ const fmt = (iso) =>
             </div>
         </dl>
 
+        <div v-if="!isSelf" class="mt-3 flex items-center justify-between gap-3">
+            <p class="text-xs text-ink-soft">Minden eszközről kijelentkezteti a felhasználót.</p>
+            <button
+                type="button"
+                class="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-primary/10 px-4 py-2.5 text-sm font-extrabold text-primary transition active:scale-[.97]"
+                @click="confirmOpen = true"
+            >
+                <LogOut :size="16" />
+                Kijelentkeztetés
+            </button>
+        </div>
+
         <form v-if="open" class="mt-4 space-y-3 border-t border-line/60 pt-4" @submit.prevent="submit">
             <div>
                 <label :for="`name-${user.id}`" class="mb-1.5 block text-sm font-bold">Név</label>
@@ -115,5 +140,27 @@ const fmt = (iso) =>
                 {{ form.processing ? 'Mentés…' : 'Mentés' }}
             </button>
         </form>
+
+        <BottomSheet v-model="confirmOpen" title="Kijelentkeztetés">
+            <p class="text-sm text-ink-soft">
+                <span class="font-extrabold text-ink">{{ user.name }}</span> azonnal kijelentkezik minden eszközről, az „Emlékezz rám”
+                bejelentkezései pedig érvénytelenné válnak. Biztosan folytatod?
+            </p>
+
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <button
+                    type="button"
+                    class="rounded-2xl bg-surface-2 px-5 py-3.5 font-extrabold text-ink transition active:scale-[.97] disabled:opacity-60"
+                    :disabled="logoutForm.processing"
+                    @click="confirmOpen = false"
+                >
+                    Mégse
+                </button>
+                <button type="button" class="btn-primary" :disabled="logoutForm.processing" @click="forceLogout">
+                    <LogOut :size="18" />
+                    {{ logoutForm.processing ? 'Folyamatban…' : 'Kijelentkeztetés' }}
+                </button>
+            </div>
+        </BottomSheet>
     </article>
 </template>

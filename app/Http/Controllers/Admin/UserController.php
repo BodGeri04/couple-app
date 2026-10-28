@@ -89,4 +89,37 @@ class UserController extends Controller
 
         return back()->with('flash', ['type' => 'success', 'message' => "{$user->name} adatai mentve."]);
     }
+
+    /**
+     * Signs the user out everywhere: their database sessions are deleted and their
+     * "remember me" token is rotated, so every stored login cookie stops working.
+     */
+    public function forceLogout(Request $request, User $user): RedirectResponse
+    {
+        if ($user->is($request->user())) {
+            return back()->with('flash', ['type' => 'error', 'message' => 'Saját magadat nem kényszerítheted ki. Használd a kijelentkezést.']);
+        }
+
+        $user->setRememberToken(Str::random(60));
+        $user->save();
+
+        $usesDatabaseSessions = config('session.driver') === 'database';
+
+        $removed = $usesDatabaseSessions
+            ? DB::table('sessions')->where('user_id', $user->id)->delete()
+            : null;
+
+        Audit::record(
+            'admin.user.force_logout',
+            "Felhasználó kijelentkeztetve: {$user->name}",
+            $user,
+            array_filter(['sessions_removed' => $removed]),
+        );
+
+        $message = $usesDatabaseSessions
+            ? "{$user->name} minden munkamenete megszűnt ({$removed} db)."
+            : "{$user->name} „Emlékezz rám” bejelentkezései érvénytelenek. A munkamenetek nem törölhetők, mert a munkamenet-tárolás nem adatbázis.";
+
+        return back()->with('flash', ['type' => 'success', 'message' => $message]);
+    }
 }
