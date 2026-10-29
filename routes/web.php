@@ -67,6 +67,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/push/test', [PushController::class, 'test'])->name('push.test');
 
     Route::get('/maintenance', MaintenanceController::class)->name('maintenance');
+    Route::get('/teszt-verzio', function () {
+        return 'Ez a legfrissebb verzio: ' . now();
+    });
 });
 
 /*
@@ -97,4 +100,4 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/logs', [AdminAuditLogController::class, 'index'])->name('logs.index');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
