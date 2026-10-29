@@ -5,6 +5,8 @@ import { usePage } from '@inertiajs/vue3';
 const state = ref('loading');
 const busy = ref(false);
 const message = ref('');
+const detail = ref('');
+const diagnostics = ref({});
 
 const isIos =
     /iphone|ipad|ipod/i.test(navigator.userAgent) ||
@@ -24,14 +26,29 @@ export function usePush() {
     const publicKey = computed(() => page.props.push?.publicKey);
 
     const refresh = async () => {
+        detail.value = '';
+        diagnostics.value = {
+            ios: isIos,
+            standalone: isStandalone(),
+            secureContext: window.isSecureContext,
+            publicKey: Boolean(publicKey.value),
+            serviceWorker: 'serviceWorker' in navigator,
+            pushManager: 'PushManager' in window,
+            notification: 'Notification' in window,
+            permission: 'Notification' in window ? Notification.permission : 'n/a',
+            userAgent: navigator.userAgent,
+        };
+
         if (!publicKey.value) {
             state.value = 'unsupported';
+            detail.value = 'The server sent no VAPID public key (VAPID_PUBLIC_KEY is missing or config is cached).';
             return;
         }
 
         if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
             // iPhones only expose push to apps that were added to the home screen.
             state.value = isIos && !isStandalone() ? 'needs-install' : 'unsupported';
+            detail.value = 'serviceWorker, PushManager or Notification is not available in this context.';
             return;
         }
 
@@ -41,7 +58,9 @@ export function usePush() {
         }
 
         try {
+            detail.value = 'Waiting for the service worker to become ready…';
             const registration = await navigator.serviceWorker.ready;
+            detail.value = '';
             const subscription = await registration.pushManager.getSubscription();
 
             if (subscription && Notification.permission === 'granted') {
@@ -53,6 +72,7 @@ export function usePush() {
             }
         } catch (e) {
             state.value = 'unsupported';
+            detail.value = `refresh failed: ${e?.name ?? ''} ${e?.message ?? e}`;
         }
     };
 
@@ -81,6 +101,7 @@ export function usePush() {
             state.value = 'on';
         } catch (e) {
             console.error(e);
+            detail.value = `enable failed: ${e?.name ?? ''} ${e?.message ?? e}`;
             message.value = 'Nem sikerült bekapcsolni az értesítéseket.';
             state.value = 'off';
         } finally {
@@ -125,5 +146,5 @@ export function usePush() {
         }
     };
 
-    return { state, busy, message, refresh, enable, disable, sendTest };
+    return { state, busy, message, detail, diagnostics, refresh, enable, disable, sendTest };
 }

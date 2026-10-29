@@ -3,7 +3,7 @@ import { onMounted } from 'vue';
 import { Bell, BellOff, BellRing } from 'lucide-vue-next';
 import { usePush } from '@/Composables/usePush';
 
-const { state, busy, message, refresh, enable, disable, sendTest } = usePush();
+const { state, busy, message, detail, diagnostics, refresh, enable, disable, sendTest } = usePush();
 
 onMounted(refresh);
 </script>
@@ -35,6 +35,40 @@ onMounted(refresh);
         </div>
     </section>
 
+    <!-- iPhone: only home-screen web apps can receive push -->
+    <section v-else-if="state === 'needs-install'" class="card flex items-start gap-4 p-5">
+        <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-primary">
+            <Bell :size="24" />
+        </div>
+        <div>
+            <h2 class="font-extrabold">Add hozzá a kezdőképernyőhöz</h2>
+            <p class="mt-0.5 text-sm text-ink-soft">
+                iPhone-on az értesítések csak a kezdőképernyőre telepített appban működnek: Megosztás → Főképernyőhöz adás.
+            </p>
+        </div>
+    </section>
+
+    <!-- Push is not available here -->
+    <section v-else-if="state === 'unsupported'" class="card flex items-start gap-4 p-5">
+        <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-ink-soft">
+            <BellOff :size="24" />
+        </div>
+        <div>
+            <h2 class="font-extrabold">Ezen a böngészőn nem elérhetők az értesítések</h2>
+            <p class="mt-0.5 text-sm text-ink-soft">Próbáld meg a kezdőképernyőre telepített appból.</p>
+        </div>
+    </section>
+
+    <!-- Checking -->
+    <section v-else-if="state === 'loading'" class="card flex items-start gap-4 p-5">
+        <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface-2 text-ink-soft">
+            <Bell :size="24" />
+        </div>
+        <div>
+            <h2 class="font-extrabold">Értesítések ellenőrzése…</h2>
+        </div>
+    </section>
+
     <!-- Active -->
     <section v-else-if="state === 'on'" class="card flex items-center gap-4 p-4">
         <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
@@ -48,5 +82,12 @@ onMounted(refresh);
                 <button type="button" class="text-ink-soft" :disabled="busy" @click="disable">Kikapcsolás</button>
             </div>
         </div>
+    </section>
+
+    <!-- Temporary debug panel (remove once push works on iPhone) -->
+    <section class="card p-4 text-xs text-ink-soft">
+        <p class="font-extrabold">Debug – state: {{ state }}</p>
+        <p v-if="detail" class="mt-1 font-semibold text-primary">{{ detail }}</p>
+        <pre class="mt-2 whitespace-pre-wrap break-all">{{ JSON.stringify(diagnostics, null, 2) }}</pre>
     </section>
 </template>
