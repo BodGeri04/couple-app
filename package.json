@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "php artisan optimize:clear",
+        "build": "vite build && php artisan optimize:clear",
         "dev": "vite"
     },
     "devDependencies": {
