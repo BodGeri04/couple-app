@@ -1,9 +1,10 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
+    "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "vite build && php artisan optimize:clear",
+        "build": "npm install && vite build && php artisan optimize:clear",
         "dev": "vite"
     },
     "devDependencies": {

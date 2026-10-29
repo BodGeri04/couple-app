@@ -1,6 +1,7 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
 import { Heart } from 'lucide-vue-next';
+import AppVersion from '@/Components/AppVersion.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { useSiteTheme } from '@/Composables/useSiteTheme';
 
@@ -31,6 +32,10 @@ useSiteTheme();
             <div class="card p-6">
                 <slot />
             </div>
+        </div>
+
+        <div class="absolute inset-x-0 bottom-0" style="padding-bottom: env(safe-area-inset-bottom)">
+            <AppVersion />
         </div>
     </div>
 </template>

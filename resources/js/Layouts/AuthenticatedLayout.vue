@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Heart, ShieldCheck } from 'lucide-vue-next';
 import BottomNav from '@/Components/BottomNav.vue';
+import AppVersion from '@/Components/AppVersion.vue';
 import BurstLayer from '@/Components/BurstLayer.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { usePullToRefresh } from '@/Composables/usePullToRefresh';
@@ -80,6 +81,7 @@ const heartStyle = computed(() => ({
                     <slot />
                 </div>
             </Transition>
+            <AppVersion />
         </main>
 
         <BottomNav />
